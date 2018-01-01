@@ -58,14 +58,12 @@ print_result(struct addrinfo *result)
 	static int first = 0;
 	static int first6 = 0;
 
-
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
 		switch(rp->ai_family) {
 			case AF_INET:
 				++first;
 				addr = &(((struct sockaddr_in *) rp->ai_addr)->sin_addr);
-				inet_ntop(AF_INET, addr, ipv4_addr, INET_ADDRSTRLEN);
-				
+				inet_ntop(AF_INET, addr, ipv4_addr, INET_ADDRSTRLEN); /* network to ascii */
 				if (first == 1) {
 					fprintf(stdout, "===============[ IPv4 ]===============\n");
 					fprintf(stdout, "Address: %s\n", ipv4_addr);
@@ -74,8 +72,7 @@ print_result(struct addrinfo *result)
 			case AF_INET6:
 				++first6;
 				addr6 = &(((struct sockaddr_in6 *) rp->ai_addr)->sin6_addr);
-				inet_ntop(AF_INET6, addr6, ipv6_addr, INET6_ADDRSTRLEN);
-
+				inet_ntop(AF_INET6, addr6, ipv6_addr, INET6_ADDRSTRLEN); /* network to ascii */
 				if (first6 == 1) {
 					fprintf(stdout, "===============[ IPv6 ]===============\n");
 					fprintf(stdout, "Address: %s\n", ipv6_addr);
