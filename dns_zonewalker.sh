@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Standard out
-
 while getopts "t:o:" opt
 do
 	case $opt in
@@ -12,10 +10,17 @@ do
 			OUTPUT_FILE=$OPTARG
 			;;
 		\?)
-			echo "Invalid option: -$OPTARG" >&2
+			echo "Usage: $0 -t <target> [-o <output_file>]"
+			exit 1
 			;;
 	esac
 done
+
+if [ -z "$START_DOMAIN" ]
+then
+	echo "Usage: $0 -t <target> [-o <output_file>]"
+	exit 1
+fi
 
 NEXT_DOMAIN=$START_DOMAIN
 
