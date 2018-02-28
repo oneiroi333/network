@@ -22,24 +22,16 @@ then
 	exit 1
 fi
 
-NEXT_DOMAIN=$START_DOMAIN
-
-NEXT_DOMAIN=$(dig $NEXT_DOMAIN ANY | grep -m 1 NSEC | awk '{print $5}')
+NEXT_DOMAIN=$(dig $START_DOMAIN ANY | grep -m 1 NSEC | awk '{print $5}')
 if [ -z "$OUTPUT_FILE" ]
 then
 	echo $NEXT_DOMAIN
 else
 	echo $NEXT_DOMAIN >> $OUTPUT_FILE
 fi
-while [ "$NEXT_DOMAIN" != "$START" ]
+while [ "$NEXT_DOMAIN" != "$START_DOMAIN" ]
 do
 	NEXT_DOMAIN=$(dig $NEXT_DOMAIN ANY | grep -m 1 NSEC | awk '{print $5}')
-
-	# Full cycle completed
-	if [ "$NEXT_DOMAIN" == "$START_DOMAIN" ]
-	then
-		break
-	fi
 
 	# Valid if the domainname includes the domain
 	if [[ "$NEXT_DOMAIN" =~ "$START_DOMAIN" ]]

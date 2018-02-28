@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 	hints.ai_family = AF_INET;
 	status = getaddrinfo(argv[1], NULL, &hints, &result);
 	if (status != 0) {
-		fprintf(stderr, "[Error IPv4]: %s\n", gai_strerror(status));
+		fprintf(stderr, "[IPv4][Error] %s\n", gai_strerror(status));
 	} else {
 		print_result(result);
 	}
@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	hints.ai_family = AF_INET6;
 	status = getaddrinfo(argv[1], NULL, &hints, &result);
 	if (status != 0) {
-		fprintf(stderr, "[Error IPv6]: %s\n", gai_strerror(status));
+		fprintf(stderr, "[IPv6][Error] %s\n", gai_strerror(status));
 	} else {
 		print_result(result);
 	}
@@ -65,8 +65,7 @@ print_result(struct addrinfo *result)
 				addr = &(((struct sockaddr_in *) rp->ai_addr)->sin_addr);
 				inet_ntop(AF_INET, addr, ipv4_addr, INET_ADDRSTRLEN); /* network to ascii */
 				if (first == 1) {
-					fprintf(stdout, "===============[ IPv4 ]===============\n");
-					fprintf(stdout, "Address: %s\n", ipv4_addr);
+					fprintf(stdout, "[IPv4] %s\n", ipv4_addr);
 				}
 				break;
 			case AF_INET6:
@@ -74,31 +73,11 @@ print_result(struct addrinfo *result)
 				addr6 = &(((struct sockaddr_in6 *) rp->ai_addr)->sin6_addr);
 				inet_ntop(AF_INET6, addr6, ipv6_addr, INET6_ADDRSTRLEN); /* network to ascii */
 				if (first6 == 1) {
-					fprintf(stdout, "===============[ IPv6 ]===============\n");
-					fprintf(stdout, "Address: %s\n", ipv6_addr);
+					fprintf(stdout, "[IPv6] %s\n", ipv6_addr);
 				}
 				break;
 			default:
 				;
 		}
-		if (first == 1 || first6 == 1) {
-			fprintf(stdout, "Socket type: ");
-		} else {
-			fprintf(stdout, ", ");
-		}
-		switch(rp->ai_socktype) {
-			case SOCK_STREAM:
-				fprintf(stdout, "TCP");
-				break;
-			case SOCK_DGRAM:
-				fprintf(stdout, "UDP");
-				break;
-			case SOCK_RAW:
-				fprintf(stdout, "RAW");
-				break;
-			default:
-				fprintf(stdout, "OTHER");
-		}
 	}
-	fprintf(stdout, "\n");
 }
