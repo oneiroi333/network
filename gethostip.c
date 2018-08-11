@@ -18,7 +18,7 @@ main(int argc, char *argv[])
 	int status;
 
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s hostname\n", argv[0]);
+		fprintf(stderr, "Usage: %s <hostname>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
