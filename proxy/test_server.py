@@ -1,10 +1,11 @@
 import socket
+from threading import Thread
+
+ip = "localhost"
+port = 8080
+srv_msg = "server hello\n"
 
 def main():
-    ip = "localhost"
-    port = 8080
-    srv_msg = "hello from server"
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, port))
     sock.listen(10)
@@ -12,16 +13,21 @@ def main():
     print("=====[ Test server ]=====")
     print("listening on port %d..." % port)
     while(1):
-        (conn, client_addr) = sock.accept()
-        data = conn.recv(4096)
-        print("%s:%d >> %s:%d" % (*(client_addr), ip, port))
-        print(data)
+        (sock, addr) = sock.accept()
+        thread = Thread(target=handle_conn, args=(sock, addr))
+        thread.start()
 
-        conn.send(bytes(srv_msg.encode()))
-        print("%s:%d >> %s:%d" % (ip, port, *(client_addr)))
-        print(srv_msg)
+def handle_conn(sock, addr):
+    data = sock.recv(4096)
+    if not len(data):
+        sock.close()
+        return
+    print("%s:%d >> %s:%d" % (*(addr), ip, port))
+    print(data.decode())
 
-        conn.close()
+    sock.send(bytes(srv_msg.encode()))
+    print("%s:%d >> %s:%d" % (ip, port, *(addr)))
+    print(srv_msg)
 
 if __name__ == "__main__":
     main()
