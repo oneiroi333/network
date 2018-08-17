@@ -6,7 +6,7 @@ port = 8080
 srv_msg = "server hello\n"
 
 def main():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, proto=0)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((ip, port))
     sock.listen(10)
@@ -14,7 +14,7 @@ def main():
     print("=====[ Test server ]=====")
     print("listening on port %d..." % port)
     while True:
-        (sock, addr) = sock.accept()
+        sock, addr = sock.accept()
         thread = Thread(target=handle_conn, args=(sock, addr))
         thread.start()
 
