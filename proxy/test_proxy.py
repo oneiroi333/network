@@ -1,11 +1,17 @@
-from proxy import Proxy_IPv4
+import socket
+import proxy as p
 
 def main():
-    proxy = Proxy_IPv4(dest_ip="127.0.0.1", dest_port=8080, local_ip="127.0.0.1", local_port=31337, max_conn=5)
+    local_sock_info = p.sock_info(
+            addr=("127.0.0.1", 31337),
+            sock_opt=[(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)]
+            )
+    dest_sock_info = p.sock_info(addr=("127.0.0.1", 8080))
+
+    proxy = p.proxy(local_sock_info, dest_sock_info)
     proxy.add_request_handler(pretty_print_request)
     proxy.add_response_handler(pretty_print_response)
     proxy.serve_forever()
-
 
 def pretty_print_request(client_addr, data):
     print("\n[>>] %s:%d" % (client_addr[0], client_addr[1]))
