@@ -74,23 +74,26 @@ class proxy:
 
     def _close_sock(self, sock):
         sock.close()
-        try:
-            for s in self._open_socks:
-                if s == sock:
+        for s in self._open_socks:
+            if s == sock:
+                try:
                     self._open_socks.remove(s)
-        except:
-            pass
+                except:
+                    pass
 
     def _receive_from(self, sock):
-        buf = ""
+        print("in _receive_from")
+        buf = b""
         try:
             while True:
                 data = sock.recv(self.bufsize)
                 if not data:
                     break
+                print(data)
                 buf += data
         except:
             pass
+        print("received: %s" % buf)
         return buf
 
     def _handle_conn(self, client_sock, client_addr):
@@ -101,23 +104,24 @@ class proxy:
         # Read first request
         request_data = self._receive_from(client_sock)
         if request_data:
-            for request_handler in self.request_handlers:
+            for request_handler in self._request_handlers:
                 request_data = request_handler(client_addr, request_data)
-            dest_sock.send(request_data)
 
+        print(request_data)
         # If the destination should be parsed from the request data, do it now
         if self.parse_dest_addr_from_data:
             dest_addr = self.parse_dest_addr_from_data(request_data)
         else:
             dest_addr = self._dest_sock_info.addr
 
+        print("[INFO] Connecting to: " + str(dest_addr))
         dest_sock = socket.socket(self._dest_sock_info.addr_family, self._dest_sock_info.sock_type, self._dest_sock_info.proto)
         if self._dest_sock_info.sock_opt:
             for sock_opt_lvl, sock_opt_name, sock_opt_val in self._dest_sock_info.sock_opt:
                 dest_sock.setsockopt(sock_opt_lvl, sock_opt_name, sock_opt_val)
         self._open_socks.append(dest_sock)
         dest_sock.connect(dest_addr)
-        print("[INFO] Connecting to: " + str(dest_addr))
+        dest_sock.send(request_data)
 
         # Enter proxy loop
         while True:
@@ -125,7 +129,7 @@ class proxy:
             if response_data:
                 for response_handler in self._response_handlers:
                     response_data = response_handler(client_addr, response_data)
-                client_sock.send(response_data_data)
+                client_sock.send(response_data)
 
             request_data = self._receive_from(client_sock)
             if request_data:

@@ -6,24 +6,23 @@ port = 8080
 srv_msg = "server hello\n"
 
 def main():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, proto=0)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((ip, port))
-    sock.listen(10)
+    local_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    local_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    local_sock.bind((ip, port))
+    local_sock.listen(10)
 
     print("=====[ Test server ]=====")
     print("listening on port %d..." % port)
     while True:
-        sock, addr = sock.accept()
-        thread = Thread(target=handle_conn, args=(sock, addr))
+        new_sock, addr = local_sock.accept()
+        thread = Thread(target=handle_conn, args=(new_sock, addr))
         thread.start()
+
 
 def handle_conn(sock, addr):
     while True:
-        while True:
-            data = sock.recv(4096)
-            if not data:
-                break
+        data = sock.recv(4096)
+
         print("%s:%d >> %s:%d" % (*(addr), ip, port))
         print(data.decode())
 
@@ -32,8 +31,9 @@ def handle_conn(sock, addr):
         print(srv_msg)
 
         if not data:
+            print("closing connection to: %s:%d" % (addr[0], addr[1]))
             sock.close()
-            return
+            break
 
 if __name__ == "__main__":
     main()

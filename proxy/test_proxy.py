@@ -23,6 +23,10 @@ def pretty_print_response(dest_addr, data):
     print("\n[<<] %s:%d" % (dest_addr[0], dest_addr[1]))
     print("hex: " +  " ".join('{:02x}'.format(x) for x in data))
     print("ascii: " + bytes(data).decode())
+
+    print("replacing 'server' with 'Man-in-the-middle'")
+    data = data.decode().replace("server", "Man-in-the-middle").encode()
+
     return data
 
 if __name__ == "__main__":
