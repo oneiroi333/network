@@ -15,35 +15,24 @@ main(int argc, char *argv[])
 {
 	struct addrinfo hints;
 	struct addrinfo *result;
-	int status;
+	int err;
 
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <hostname>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
+	/* Lookup IP */
 	memset(&hints, 0, sizeof(struct addrinfo));
-
-	/* Lookup IPv4 */
-	hints.ai_family = AF_INET;
-	status = getaddrinfo(argv[1], NULL, &hints, &result);
-	if (status != 0) {
-		fprintf(stderr, "[IPv4][Error] %s\n", gai_strerror(status));
+	hints.ai_family = AF_UNSPEC; /* IPv4 and IPv6 */
+	err = getaddrinfo(argv[1], NULL, &hints, &result);
+	if (err) {
+		fprintf(stderr, "[Error] %s\n", gai_strerror(err));
+		exit(EXIT_FAILURE);
 	} else {
 		print_result(result);
+		freeaddrinfo(result);
 	}
-
-	/* Lookup IPv6 */
-	hints.ai_family = AF_INET6;
-	status = getaddrinfo(argv[1], NULL, &hints, &result);
-	if (status != 0) {
-		fprintf(stderr, "[IPv6][Error] %s\n", gai_strerror(status));
-	} else {
-		print_result(result);
-	}
-
-	freeaddrinfo(result);
-
 	exit(EXIT_SUCCESS);
 }
 
@@ -59,22 +48,30 @@ print_result(struct addrinfo *result)
 	static int first6 = 0;
 
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
+		/* IPv4 and IPv6 got printed, we can stop now */
+		if (first > 0 && first6 > 0) {
+			break;
+		}
 		switch(rp->ai_family) {
 			case AF_INET:
 				++first;
-				addr = &(((struct sockaddr_in *) rp->ai_addr)->sin_addr);
-				inet_ntop(AF_INET, addr, ipv4_addr, INET_ADDRSTRLEN); /* network to ascii */
-				if (first == 1) {
-					fprintf(stdout, "[IPv4] %s\n", ipv4_addr);
+				if (first != 1) {
+					continue;
 				}
+				addr = &(((struct sockaddr_in *) rp->ai_addr)->sin_addr);
+				/* Get string representation of IP addr */
+				inet_ntop(AF_INET, addr, ipv4_addr, INET_ADDRSTRLEN);
+				fprintf(stdout, "IPv4: %s\n", ipv4_addr);
 				break;
 			case AF_INET6:
 				++first6;
-				addr6 = &(((struct sockaddr_in6 *) rp->ai_addr)->sin6_addr);
-				inet_ntop(AF_INET6, addr6, ipv6_addr, INET6_ADDRSTRLEN); /* network to ascii */
-				if (first6 == 1) {
-					fprintf(stdout, "[IPv6] %s\n", ipv6_addr);
+				if (first6 != 1) {
+					continue;
 				}
+				addr6 = &(((struct sockaddr_in6 *) rp->ai_addr)->sin6_addr);
+				/* Get string representation of IP addr */
+				inet_ntop(AF_INET6, addr6, ipv6_addr, INET6_ADDRSTRLEN);
+				fprintf(stdout, "IPv6: %s\n", ipv6_addr);
 				break;
 			default:
 				;
