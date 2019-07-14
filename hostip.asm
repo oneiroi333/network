@@ -81,9 +81,6 @@ section .data
 	msg_error: db "Error: %s", 0xA, 0
 	msg_ipv4: db "IPv4: %s", 0xA, 0
 	msg_ipv6: db "IPv6: %s", 0xA, 0
-; TODO remove when finished
-	dbg1: db "ipv4", 0xA, 0
-	dbg2: db "ipv6", 0xA, 0
 
 ;------------------------------------------------------
 ; Section BSS
