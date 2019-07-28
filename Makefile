@@ -1,13 +1,13 @@
-gethostip: gethostip.c
-	gcc -o gethostip gethostip.c
+hostip: hostip.c
+	gcc -o hostip hostip.c
 
-gethostip_asm: gethostip_asm.o
-	gcc -m32 -o gethostip_asm gethostip_asm.o
-	rm -f gethostip_asm.o
+hostip_asm: hostip_asm.o
+	gcc -m32 -o hostip_asm hostip_asm.o
+	rm -f hostip_asm.o
 
-gethostip_asm.o: gethostip.asm
-	nasm -f elf -g gethostip.asm -o gethostip_asm.o
+hostip_asm.o: hostip.asm
+	nasm -f elf -g hostip.asm -o hostip_asm.o
 
 clean:
-	rm -f gethostip
-	rm -f gethostip_asm
+	rm -f hostip
+	rm -f hostip_asm
